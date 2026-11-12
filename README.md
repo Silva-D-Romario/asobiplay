@@ -1,5 +1,7 @@
 # AsobiPlay
 
+[Português](README.md) | [English](README.en.md)
+
 Aplicativo mobile de jogos de tabuleiro para jogar no mesmo celular ou com amigos conectados à mesma rede Wi-Fi.
 
 [![Licença MIT](https://img.shields.io/badge/licença-MIT-B8FF55.svg)](LICENSE)
@@ -93,7 +95,7 @@ Consulte a [arquitetura](docs/ARQUITETURA.md) e o [roadmap](docs/ROADMAP.md) par
 
 ## Licença
 
-Este projeto é distribuído sob a [licença MIT](LICENSE).
+Este projeto é distribuído sob a [licença MIT original em inglês](LICENSE). Uma [tradução não oficial em português](LICENSE.pt-BR.md) também está disponível para consulta.
 
 ## Autor
 
