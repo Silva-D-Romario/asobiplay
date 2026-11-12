@@ -50,4 +50,22 @@ void main() {
     expect(find.text('Informe o nome do jogador'), findsNWidgets(2));
     expect(find.text('Quem vai jogar?'), findsOneWidget);
   });
+
+  testWidgets('mantém os indicadores dentro de uma tela estreita', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(430, 932));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(const AsobiPlayApp());
+
+    await tester.tap(find.text('Mesmo celular'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('player-x-name')), 'Romário');
+    await tester.enterText(find.byKey(const Key('player-o-name')), 'Bia');
+    await tester.tap(find.byKey(const Key('start-game')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('cell-0')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
