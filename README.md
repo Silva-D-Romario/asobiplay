@@ -9,15 +9,15 @@ Aplicativo mobile de jogos de tabuleiro para jogar no mesmo celular ou com amigo
 ## Interface
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="230" alt="Tela inicial do AsobiPlay">
+  <img src="docs/screenshots/readme/home.jpg" width="230" alt="Tela inicial do AsobiPlay em um celular Android">
 </p>
 
 <table>
   <tr>
-    <td align="center"><strong>Jogo da Velha</strong><br><img src="docs/screenshots/jogo-da-velha.png" width="200" alt="Partida de Jogo da Velha"></td>
-    <td align="center"><strong>Damas</strong><br><img src="docs/screenshots/damas.png" width="200" alt="Partida de Damas"></td>
-    <td align="center"><strong>Forca</strong><br><img src="docs/screenshots/forca.png" width="200" alt="Partida de Forca"></td>
-    <td align="center"><strong>Lig 4</strong><br><img src="docs/screenshots/lig-4.png" width="200" alt="Partida de Lig 4"></td>
+    <td align="center"><strong>Jogo da Velha</strong><br><img src="docs/screenshots/readme/jogo-da-velha.jpg" width="200" alt="Partida real de Jogo da Velha no AsobiPlay"></td>
+    <td align="center"><strong>Damas</strong><br><img src="docs/screenshots/readme/damas.jpg" width="200" alt="Partida real de Damas no AsobiPlay"></td>
+    <td align="center"><strong>Forca</strong><br><img src="docs/screenshots/readme/forca.jpg" width="200" alt="Partida real de Forca no AsobiPlay"></td>
+    <td align="center"><strong>Lig 4</strong><br><img src="docs/screenshots/readme/lig-4.jpg" width="200" alt="Partida real de Lig 4 no AsobiPlay"></td>
   </tr>
 </table>
 
