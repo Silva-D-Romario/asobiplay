@@ -1,7 +1,7 @@
 name: asobiplay
 description: Jogos de tabuleiro para jogar no mesmo celular ou na rede local.
 publish_to: "none"
-version: 0.5.0+6
+version: 0.5.1+7
 
 environment:
   sdk: ^3.9.0

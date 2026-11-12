@@ -143,13 +143,17 @@ class _GameBadge extends StatelessWidget {
           children: [
             Icon(Icons.grid_3x3_rounded, color: AppColors.primary, size: 18),
             SizedBox(width: 8),
-            Text(
-              'JOGO DA VELHA · MESMO CELULAR',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.8,
+            Flexible(
+              child: Text(
+                'JOGO DA VELHA · MESMO CELULAR',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.8,
+                ),
               ),
             ),
           ],

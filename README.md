@@ -2,7 +2,24 @@
 
 Aplicativo mobile de jogos de tabuleiro para jogar no mesmo celular ou com amigos conectados à mesma rede Wi-Fi.
 
+[![Licença MIT](https://img.shields.io/badge/licença-MIT-B8FF55.svg)](LICENSE)
+
 > Projeto em desenvolvimento. A versão atual permite jogar Jogo da Velha, Damas, Forca e Lig 4 com dois jogadores no mesmo celular.
+
+## Interface
+
+<p align="center">
+  <img src="docs/screenshots/home.png" width="230" alt="Tela inicial do AsobiPlay">
+</p>
+
+<table>
+  <tr>
+    <td align="center"><strong>Jogo da Velha</strong><br><img src="docs/screenshots/jogo-da-velha.png" width="200" alt="Partida de Jogo da Velha"></td>
+    <td align="center"><strong>Damas</strong><br><img src="docs/screenshots/damas.png" width="200" alt="Partida de Damas"></td>
+    <td align="center"><strong>Forca</strong><br><img src="docs/screenshots/forca.png" width="200" alt="Partida de Forca"></td>
+    <td align="center"><strong>Lig 4</strong><br><img src="docs/screenshots/lig-4.png" width="200" alt="Partida de Lig 4"></td>
+  </tr>
+</table>
 
 ## Recursos disponíveis
 
@@ -73,6 +90,10 @@ Consulte a [arquitetura](docs/ARQUITETURA.md) e o [roadmap](docs/ROADMAP.md) par
 - `main`: versão estável.
 - `develop`: desenvolvimento e validação.
 - Mudanças entram em `main` por pull request após os testes automáticos.
+
+## Licença
+
+Este projeto é distribuído sob a [licença MIT](LICENSE).
 
 ## Autor
 

@@ -1,5 +1,12 @@
 # Histórico de versões
 
+## v0.5.1 — 12/11/2026
+
+- Adiciona capturas reais da interface ao README.
+- Define a licença MIT para o código-fonte.
+- Corrige indicadores do Jogo da Velha em telas estreitas.
+- Adiciona teste de regressão para o layout mobile.
+
 ## v0.5.0 — 29/10/2026
 
 - Adiciona salas Wi-Fi para Jogo da Velha sem servidor externo.
