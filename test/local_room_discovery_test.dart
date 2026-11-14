@@ -31,7 +31,7 @@ void main() {
 
     expect(
       await response.future.timeout(const Duration(seconds: 2)),
-      'ASOBIPLAY_ROOM:123456:43210',
+      'ASOBIPLAY_ROOM:123456:43210:tic_tac_toe',
     );
   });
 }
