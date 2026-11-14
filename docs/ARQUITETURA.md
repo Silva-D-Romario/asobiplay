@@ -22,7 +22,7 @@ lib/
     └── local_network/   # Estado autoritativo, UDP, WebSocket e telas Wi-Fi
 ```
 
-Cada jogo possui uma camada `domain`, sem dependência da interface, e uma camada `presentation`. Isso permite testar as regras separadamente e reaproveitá-las no futuro modo Wi-Fi.
+Cada jogo possui uma camada `domain`, sem dependência da interface, e uma camada `presentation`. Isso permite testar as regras separadamente e reaproveitá-las nos modos local e Wi-Fi.
 
 ## Multiplayer na rede local
 
@@ -36,7 +36,9 @@ Celular anfitrião ── WebSocket na rede Wi-Fi ── Celular convidado
 
 O servidor existe apenas dentro do aplicativo durante a partida. Não depende do computador do desenvolvedor nem de hospedagem externa.
 
-Na implementação atual, o anfitrião abre um `HttpServer` com WebSocket em uma porta dinâmica. O código de seis números é anunciado por UDP broadcast. Todas as jogadas do convidado passam pelo anfitrião, que valida turno, casa livre, vitória, empate e revanche antes de transmitir o novo estado.
+Na implementação atual, o anfitrião abre um `HttpServer` com WebSocket em uma porta dinâmica. O código de seis números é anunciado por UDP broadcast. O QR Code reúne tipo do jogo, código, IP e porta para simplificar a entrada. Todas as jogadas do convidado passam pelo anfitrião, que valida as regras antes de transmitir o novo estado.
+
+Jogo da Velha e Damas utilizam estados de sala específicos. Em Damas também são sincronizados tema do tabuleiro, cores das peças, captura obrigatória, captura para trás, sequência de captura, placar e revanche.
 
 Se o roteador bloquear broadcast, o convidado pode usar o endereço `IP:porta` exibido na tela do anfitrião.
 
