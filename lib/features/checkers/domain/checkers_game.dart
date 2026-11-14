@@ -49,6 +49,18 @@ class CheckersGame {
        _board = List.of(board),
        _currentPlayer = firstPlayer;
 
+  CheckersGame.restored({
+    required List<CheckersPiece?> board,
+    required CheckersPlayer currentPlayer,
+    required this.rules,
+    CheckersPlayer? winner,
+    int? forcedPiece,
+  }) : assert(board.length == 64),
+       _board = List.of(board),
+       _currentPlayer = currentPlayer,
+       _winner = winner,
+       _forcedPiece = forcedPiece;
+
   static const _diagonals = [(-1, -1), (-1, 1), (1, -1), (1, 1)];
 
   final List<CheckersPiece?> _board;

@@ -4,9 +4,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../checkers/domain/checkers_game.dart';
+import '../../checkers/presentation/checkers_colors.dart';
+import '../data/local_checkers_room_client.dart';
+import '../data/local_checkers_room_server.dart';
 import '../data/local_room_client.dart';
 import '../data/local_room_discovery.dart';
 import '../data/local_room_server.dart';
+import '../domain/local_room_invite.dart';
+import 'qr_scanner_screen.dart';
+import 'wifi_checkers_screen.dart';
 import 'wifi_tic_tac_toe_screen.dart';
 
 class WifiLobbyScreen extends StatefulWidget {
@@ -21,6 +28,12 @@ class _WifiLobbyScreenState extends State<WifiLobbyScreen> {
   final _guestNameController = TextEditingController();
   final _roomCodeController = TextEditingController();
   final _addressController = TextEditingController();
+  var _game = LocalGameType.ticTacToe;
+  var _boardIndex = 0;
+  var _hostPieceColorIndex = 0;
+  var _guestPieceColorIndex = 3;
+  var _mandatoryCapture = true;
+  var _menCanCaptureBackward = true;
   var _busy = false;
 
   @override
@@ -47,16 +60,42 @@ class _WifiLobbyScreenState extends State<WifiLobbyScreen> {
     }
     setState(() => _busy = true);
     try {
-      final server = await LocalRoomServer.start(hostName: name);
-      if (!mounted) {
-        await server.close();
-        return;
+      if (_game == LocalGameType.ticTacToe) {
+        final server = await LocalRoomServer.start(hostName: name);
+        if (!mounted) {
+          await server.close();
+          return;
+        }
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => WifiTicTacToeScreen.host(server: server),
+          ),
+        );
+      } else {
+        if (_hostPieceColorIndex == _guestPieceColorIndex) {
+          _showError('Escolha cores diferentes para as peças.');
+          return;
+        }
+        final server = await LocalCheckersRoomServer.start(
+          hostName: name,
+          rules: CheckersRules(
+            mandatoryCapture: _mandatoryCapture,
+            menCanCaptureBackward: _menCanCaptureBackward,
+          ),
+          boardColorIndex: _boardIndex,
+          hostPieceColorIndex: _hostPieceColorIndex,
+          guestPieceColorIndex: _guestPieceColorIndex,
+        );
+        if (!mounted) {
+          await server.close();
+          return;
+        }
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => WifiCheckersScreen.host(server: server),
+          ),
+        );
       }
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => WifiTicTacToeScreen.host(server: server),
-        ),
-      );
     } on SocketException {
       _showError('Não foi possível abrir a sala nesta rede.');
     } finally {
@@ -64,7 +103,7 @@ class _WifiLobbyScreenState extends State<WifiLobbyScreen> {
     }
   }
 
-  Future<void> _joinRoom() async {
+  Future<void> _joinRoom({LocalRoomInvite? invite}) async {
     final name = _guestNameController.text.trim();
     final code = _roomCodeController.text.trim();
     if (name.isEmpty) {
@@ -77,7 +116,9 @@ class _WifiLobbyScreenState extends State<WifiLobbyScreen> {
     }
     setState(() => _busy = true);
     try {
-      final manual = _parseAddress(_addressController.text);
+      final manual = invite == null
+          ? _parseAddress(_addressController.text)
+          : (invite.address, invite.port);
       final discovered = manual == null
           ? await LocalRoomDiscoveryResponder.find(code)
           : null;
@@ -89,29 +130,69 @@ class _WifiLobbyScreenState extends State<WifiLobbyScreen> {
         );
         return;
       }
-      final client = await LocalRoomClient.connect(
-        address: address,
-        port: port,
-        guestName: name,
-      );
-      if (!mounted) {
-        await client.close();
-        return;
+      final discoveredGame = LocalGameType.fromId(discovered?.game);
+      final roomGame = invite?.game ?? discoveredGame ?? _game;
+      if (roomGame == LocalGameType.ticTacToe) {
+        final client = await LocalRoomClient.connect(
+          address: address,
+          port: port,
+          guestName: name,
+        );
+        if (!mounted) {
+          await client.close();
+          return;
+        }
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => WifiTicTacToeScreen.guest(client: client),
+          ),
+        );
+      } else {
+        final client = await LocalCheckersRoomClient.connect(
+          address: address,
+          port: port,
+          guestName: name,
+        );
+        if (!mounted) {
+          await client.close();
+          return;
+        }
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => WifiCheckersScreen.guest(client: client),
+          ),
+        );
       }
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => WifiTicTacToeScreen.guest(client: client),
-        ),
-      );
     } on TimeoutException {
       _showError('A sala demorou para responder. Tente novamente.');
     } on SocketException {
       _showError('Não foi possível conectar ao celular anfitrião.');
     } on StateError catch (error) {
       _showError(error.message.toString());
+    } on FormatException catch (error) {
+      _showError(error.message.toString());
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _scanQr() async {
+    if (_guestNameController.text.trim().isEmpty) {
+      _showError('Informe seu nome antes de ler o QR Code.');
+      return;
+    }
+    final invite = await Navigator.of(context).push<LocalRoomInvite>(
+      MaterialPageRoute<LocalRoomInvite>(
+        builder: (_) => const QrScannerScreen(),
+      ),
+    );
+    if (invite == null || !mounted) return;
+    setState(() {
+      _game = invite.game;
+      _roomCodeController.text = invite.roomCode;
+      _addressController.text = '${invite.address}:${invite.port}';
+    });
+    await _joinRoom(invite: invite);
   }
 
   (String, int)? _parseAddress(String value) {
@@ -151,6 +232,11 @@ class _WifiLobbyScreenState extends State<WifiLobbyScreen> {
                   children: [
                     const _NetworkNotice(),
                     const SizedBox(height: 18),
+                    _GamePicker(
+                      selected: _game,
+                      onSelected: (game) => setState(() => _game = game),
+                    ),
+                    const SizedBox(height: 18),
                     _LobbyCard(
                       icon: Icons.wifi_tethering_rounded,
                       accent: AppColors.primary,
@@ -164,12 +250,32 @@ class _WifiLobbyScreenState extends State<WifiLobbyScreen> {
                           controller: _hostNameController,
                           label: 'Seu nome',
                         ),
+                        if (_game == LocalGameType.checkers) ...[
+                          const SizedBox(height: 18),
+                          _CheckersRoomOptions(
+                            boardIndex: _boardIndex,
+                            hostPieceColorIndex: _hostPieceColorIndex,
+                            guestPieceColorIndex: _guestPieceColorIndex,
+                            mandatoryCapture: _mandatoryCapture,
+                            menCanCaptureBackward: _menCanCaptureBackward,
+                            onBoardChanged: (value) =>
+                                setState(() => _boardIndex = value),
+                            onHostColorChanged: (value) =>
+                                setState(() => _hostPieceColorIndex = value),
+                            onGuestColorChanged: (value) =>
+                                setState(() => _guestPieceColorIndex = value),
+                            onMandatoryCaptureChanged: (value) =>
+                                setState(() => _mandatoryCapture = value),
+                            onBackwardCaptureChanged: (value) =>
+                                setState(() => _menCanCaptureBackward = value),
+                          ),
+                        ],
                         const SizedBox(height: 14),
                         FilledButton.icon(
                           key: const Key('create-wifi-room'),
                           onPressed: _busy ? null : _createRoom,
                           icon: const Icon(Icons.add_circle_outline_rounded),
-                          label: const Text('Criar sala de Jogo da Velha'),
+                          label: Text('Criar sala de ${_game.label}'),
                         ),
                       ],
                     ),
@@ -203,6 +309,13 @@ class _WifiLobbyScreenState extends State<WifiLobbyScreen> {
                           hint: '192.168.0.10:43210',
                         ),
                         const SizedBox(height: 14),
+                        FilledButton.tonalIcon(
+                          key: const Key('scan-room-qr'),
+                          onPressed: _busy ? null : _scanQr,
+                          icon: const Icon(Icons.qr_code_scanner_rounded),
+                          label: const Text('Ler QR e entrar'),
+                        ),
+                        const SizedBox(height: 10),
                         OutlinedButton.icon(
                           key: const Key('join-wifi-room'),
                           onPressed: _busy ? null : _joinRoom,
@@ -222,6 +335,204 @@ class _WifiLobbyScreenState extends State<WifiLobbyScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _GamePicker extends StatelessWidget {
+  const _GamePicker({required this.selected, required this.onSelected});
+
+  final LocalGameType selected;
+  final ValueChanged<LocalGameType> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.surfaceLight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Escolha o jogo da sala',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SegmentedButton<LocalGameType>(
+            key: const Key('wifi-game-picker'),
+            segments: const [
+              ButtonSegment(
+                value: LocalGameType.ticTacToe,
+                icon: Icon(Icons.grid_3x3_rounded),
+                label: Text('Jogo da Velha'),
+              ),
+              ButtonSegment(
+                value: LocalGameType.checkers,
+                icon: Icon(Icons.blur_circular_rounded),
+                label: Text('Damas'),
+              ),
+            ],
+            selected: {selected},
+            onSelectionChanged: (values) => onSelected(values.first),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CheckersRoomOptions extends StatelessWidget {
+  const _CheckersRoomOptions({
+    required this.boardIndex,
+    required this.hostPieceColorIndex,
+    required this.guestPieceColorIndex,
+    required this.mandatoryCapture,
+    required this.menCanCaptureBackward,
+    required this.onBoardChanged,
+    required this.onHostColorChanged,
+    required this.onGuestColorChanged,
+    required this.onMandatoryCaptureChanged,
+    required this.onBackwardCaptureChanged,
+  });
+
+  final int boardIndex;
+  final int hostPieceColorIndex;
+  final int guestPieceColorIndex;
+  final bool mandatoryCapture;
+  final bool menCanCaptureBackward;
+  final ValueChanged<int> onBoardChanged;
+  final ValueChanged<int> onHostColorChanged;
+  final ValueChanged<int> onGuestColorChanged;
+  final ValueChanged<bool> onMandatoryCaptureChanged;
+  final ValueChanged<bool> onBackwardCaptureChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('wifi-checkers-options'),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.surfaceLight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'Configuração de Damas',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<int>(
+            key: const Key('wifi-checkers-board-theme'),
+            initialValue: boardIndex,
+            decoration: const InputDecoration(labelText: 'Tabuleiro'),
+            items: [
+              for (var index = 0; index < checkersBoardOptions.length; index++)
+                DropdownMenuItem(
+                  value: index,
+                  child: Text(checkersBoardOptions[index].name),
+                ),
+            ],
+            onChanged: (value) {
+              if (value != null) onBoardChanged(value);
+            },
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _ColorDropdown(
+                  key: const Key('wifi-checkers-host-color'),
+                  label: 'Suas peças',
+                  value: hostPieceColorIndex,
+                  onChanged: onHostColorChanged,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _ColorDropdown(
+                  key: const Key('wifi-checkers-guest-color'),
+                  label: 'Peças do convidado',
+                  value: guestPieceColorIndex,
+                  onChanged: onGuestColorChanged,
+                ),
+              ),
+            ],
+          ),
+          SwitchListTile.adaptive(
+            key: const Key('wifi-mandatory-capture'),
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Captura obrigatória'),
+            value: mandatoryCapture,
+            onChanged: onMandatoryCaptureChanged,
+          ),
+          SwitchListTile.adaptive(
+            key: const Key('wifi-backward-capture'),
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Peão captura para trás'),
+            value: menCanCaptureBackward,
+            onChanged: onBackwardCaptureChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ColorDropdown extends StatelessWidget {
+  const _ColorDropdown({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    super.key,
+  });
+
+  final String label;
+  final int value;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<int>(
+      initialValue: value,
+      decoration: InputDecoration(labelText: label),
+      items: [
+        for (var index = 0; index < checkersPieceColorOptions.length; index++)
+          DropdownMenuItem(
+            value: index,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 14,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: checkersPieceColorOptions[index].color,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white70),
+                  ),
+                ),
+                const SizedBox(width: 7),
+                Text(checkersPieceColorOptions[index].name),
+              ],
+            ),
+          ),
+      ],
+      onChanged: (selected) {
+        if (selected != null) onChanged(selected);
+      },
     );
   }
 }
