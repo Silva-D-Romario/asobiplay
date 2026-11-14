@@ -1,5 +1,14 @@
 # Histórico de versões
 
+## v0.6.0 — 14/11/2026
+
+- Adiciona partidas de Damas entre dois celulares na mesma rede Wi-Fi.
+- Sincroniza tabuleiro, regras, cores, turnos, placar e revanches.
+- Mantém a validação autoritativa das jogadas no celular anfitrião.
+- Permite criar e entrar em salas de Jogo da Velha ou Damas.
+- Adiciona QR Code para entrar na sala sem digitar código, IP e porta.
+- Mantém descoberta automática, código numérico e endereço manual como alternativas.
+
 ## v0.5.1 — 12/11/2026
 
 - Adiciona capturas reais da interface ao README.

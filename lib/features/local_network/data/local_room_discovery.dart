@@ -7,15 +7,22 @@ class DiscoveredRoom {
     required this.address,
     required this.port,
     required this.hostName,
+    required this.game,
   });
 
   final String address;
   final int port;
   final String hostName;
+  final String game;
 }
 
 class LocalRoomDiscoveryResponder {
-  LocalRoomDiscoveryResponder._(this._socket, this.roomCode, this.serverPort) {
+  LocalRoomDiscoveryResponder._(
+    this._socket,
+    this.roomCode,
+    this.serverPort,
+    this.game,
+  ) {
     _subscription = _socket.listen(_handleEvent);
   }
 
@@ -26,18 +33,20 @@ class LocalRoomDiscoveryResponder {
   final RawDatagramSocket _socket;
   final String roomCode;
   final int serverPort;
+  final String game;
   late final StreamSubscription<RawSocketEvent> _subscription;
 
   static Future<LocalRoomDiscoveryResponder> start({
     required String roomCode,
     required int serverPort,
+    String game = 'tic_tac_toe',
   }) async {
     final socket = await RawDatagramSocket.bind(
       InternetAddress.anyIPv4,
       discoveryPort,
       reuseAddress: true,
     );
-    return LocalRoomDiscoveryResponder._(socket, roomCode, serverPort);
+    return LocalRoomDiscoveryResponder._(socket, roomCode, serverPort, game);
   }
 
   void _handleEvent(RawSocketEvent event) {
@@ -46,7 +55,7 @@ class LocalRoomDiscoveryResponder {
     if (datagram == null) return;
     final message = utf8.decode(datagram.data, allowMalformed: true);
     if (message != '$_requestPrefix$roomCode') return;
-    final response = utf8.encode('$_responsePrefix$roomCode:$serverPort');
+    final response = utf8.encode('$_responsePrefix$roomCode:$serverPort:$game');
     _socket.send(response, datagram.address, datagram.port);
   }
 
@@ -81,7 +90,7 @@ class LocalRoomDiscoveryResponder {
       if (datagram == null) return;
       final response = utf8.decode(datagram.data, allowMalformed: true);
       final match = RegExp(
-        '^$_responsePrefix$normalized:(\\d+)\$',
+        '^$_responsePrefix$normalized:(\\d+)(?::([a-z_]+))?\$',
       ).firstMatch(response);
       if (match == null) return;
       finish(
@@ -89,6 +98,7 @@ class LocalRoomDiscoveryResponder {
           address: datagram.address.address,
           port: int.parse(match.group(1)!),
           hostName: datagram.address.host,
+          game: match.group(2) ?? 'tic_tac_toe',
         ),
       );
     });

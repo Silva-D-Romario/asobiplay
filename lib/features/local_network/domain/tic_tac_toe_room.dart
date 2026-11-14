@@ -36,6 +36,7 @@ class RoomSnapshot {
 
   Map<String, Object?> toJson() => {
     'type': 'state',
+    'game': 'tic_tac_toe',
     'roomCode': roomCode,
     'hostName': hostName,
     'guestName': guestName,
@@ -51,6 +52,9 @@ class RoomSnapshot {
   };
 
   factory RoomSnapshot.fromJson(Map<String, dynamic> json) {
+    if (json['game'] != null && json['game'] != 'tic_tac_toe') {
+      throw const FormatException('A sala selecionada não é de Jogo da Velha');
+    }
     final rawBoard = json['board'];
     final rawWinningCells = json['winningCells'];
     if (rawBoard is! List || rawBoard.length != 9) {

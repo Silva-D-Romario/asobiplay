@@ -6,7 +6,7 @@ A mobile board game collection for playing on the same phone or with friends con
 
 [![MIT License](https://img.shields.io/badge/license-MIT-B8FF55.svg)](LICENSE)
 
-> Work in progress. The current version includes Tic-Tac-Toe, Checkers, Hangman, and Connect Four for two players sharing one phone.
+> Work in progress. The current version supports Tic-Tac-Toe, Checkers, Hangman, and Connect Four on one phone, plus Tic-Tac-Toe and Checkers between two phones over Wi-Fi.
 
 ## Interface
 
@@ -31,8 +31,9 @@ A mobile board game collection for playing on the same phone or with friends con
 - Five individual piece colors per player and three board themes.
 - Hangman with a protected secret word, optional hint, and seven drawing stages.
 - Connect Four with gravity and horizontal, vertical, and diagonal win detection.
-- Tic-Tac-Toe multiplayer between two phones on the same Wi-Fi network.
-- Room creation by code, automatic discovery, and manual connection by IP address.
+- Tic-Tac-Toe and Checkers multiplayer between two phones on the same Wi-Fi network.
+- Checkers rules, board theme, and piece colors synchronized across both devices.
+- Room access by QR Code, numeric code, automatic discovery, or `IP:port`.
 - Persistent match scores and alternating roles between rematches.
 - Responsive interface for Android and iOS.
 - Custom visual identity and application icons for Android and iOS.
@@ -42,20 +43,21 @@ A mobile board game collection for playing on the same phone or with friends con
 AsobiPlay brings together quick games for playing with friends. Players can enter their names, keep a local score, and choose between two match modes:
 
 - **Same phone:** two players share one device.
-- **Wi-Fi network:** for Tic-Tac-Toe, one phone creates the room and temporarily acts as the host, with no computer or permanent server required.
+- **Wi-Fi network:** for Tic-Tac-Toe and Checkers, one phone creates the room and temporarily acts as the host, with no computer or permanent server required.
 
 To play over the local network:
 
 1. Connect both phones to the same Wi-Fi network.
-2. On the first phone, tap **Wi-Fi Room**, enter a name, and create the room.
-3. On the second phone, enter a name and room code to discover it automatically.
-4. If discovery fails, enter the `IP:port` address displayed by the host.
+2. On the first phone, tap **Wi-Fi Room**, choose the game, enter a name, and create the room.
+3. For Checkers, also select the rules, board theme, and piece colors.
+4. On the second phone, enter a name and tap **Scan QR and join**.
+5. Alternatively, use the room code or the `IP:port` displayed by the host.
 
 ## Technologies
 
 - Flutter and Dart
 - Material 3
-- WebSocket, UDP broadcast, and local network discovery
+- WebSocket, UDP broadcast, QR Code, and local network discovery
 - Unit and widget tests
 - GitHub Actions
 

@@ -6,7 +6,9 @@ import '../../../core/theme/app_theme.dart';
 import '../../tic_tac_toe/domain/tic_tac_toe_game.dart';
 import '../data/local_room_client.dart';
 import '../data/local_room_server.dart';
+import '../domain/local_room_invite.dart';
 import '../domain/tic_tac_toe_room.dart';
+import 'room_qr_card.dart';
 
 class WifiTicTacToeScreen extends StatefulWidget {
   const WifiTicTacToeScreen.host({required LocalRoomServer server, super.key})
@@ -130,10 +132,13 @@ class _WifiTicTacToeScreenState extends State<WifiTicTacToeScreen> {
                     const _TopBar(),
                     const SizedBox(height: 16),
                     if (widget.isHost)
-                      _RoomAccessCard(
-                        code: widget._server!.roomCode,
-                        address:
-                            '${widget._server!.localAddress}:${widget._server!.port}',
+                      RoomQrCard(
+                        invite: LocalRoomInvite(
+                          game: LocalGameType.ticTacToe,
+                          address: widget._server!.localAddress,
+                          port: widget._server!.port,
+                          roomCode: widget._server!.roomCode,
+                        ),
                       ),
                     if (widget.isHost) const SizedBox(height: 14),
                     if (_connectionError != null)
@@ -206,51 +211,6 @@ class _TopBar extends StatelessWidget {
         ),
         Icon(Icons.wifi_rounded, color: AppColors.primary),
       ],
-    );
-  }
-}
-
-class _RoomAccessCard extends StatelessWidget {
-  const _RoomAccessCard({required this.code, required this.address});
-
-  final String code;
-  final String address;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      key: const Key('wifi-room-access'),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.45)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.key_rounded, color: AppColors.primary, size: 30),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Código da sala'),
-                Text(
-                  code,
-                  key: const Key('wifi-room-code-display'),
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 4,
-                  ),
-                ),
-                Text('Conexão manual: $address'),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

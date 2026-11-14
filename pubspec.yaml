@@ -1,7 +1,7 @@
 name: asobiplay
 description: Jogos de tabuleiro para jogar no mesmo celular ou na rede local.
 publish_to: "none"
-version: 0.5.1+7
+version: 0.6.0+8
 
 environment:
   sdk: ^3.9.0
@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  mobile_scanner: ^7.5.0
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:

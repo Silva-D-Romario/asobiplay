@@ -16,6 +16,14 @@ void main() {
     expect(find.text('Entrar na sala'), findsOneWidget);
     expect(find.byKey(const Key('wifi-host-name')), findsOneWidget);
     expect(find.byKey(const Key('wifi-room-code')), findsOneWidget);
+    expect(find.byKey(const Key('wifi-game-picker')), findsOneWidget);
+    expect(find.byKey(const Key('scan-room-qr')), findsOneWidget);
     expect(find.textContaining('mesma rede Wi-Fi'), findsOneWidget);
+
+    await tester.tap(find.text('Damas').first);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('wifi-checkers-options')), findsOneWidget);
+    expect(find.text('Criar sala de Damas'), findsOneWidget);
   });
 }

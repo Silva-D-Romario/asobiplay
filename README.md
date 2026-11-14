@@ -6,7 +6,7 @@ Aplicativo mobile de jogos de tabuleiro para jogar no mesmo celular ou com amigo
 
 [![Licença MIT](https://img.shields.io/badge/licença-MIT-B8FF55.svg)](LICENSE)
 
-> Projeto em desenvolvimento. A versão atual permite jogar Jogo da Velha, Damas, Forca e Lig 4 com dois jogadores no mesmo celular.
+> Projeto em desenvolvimento. A versão atual permite jogar Jogo da Velha, Damas, Forca e Lig 4 no mesmo celular, além de Jogo da Velha e Damas entre dois celulares via Wi-Fi.
 
 ## Interface
 
@@ -31,8 +31,9 @@ Aplicativo mobile de jogos de tabuleiro para jogar no mesmo celular ou com amigo
 - Cinco cores individuais para as peças de cada jogador e três temas de tabuleiro.
 - Forca com palavra secreta protegida, dica opcional e sete estágios no desenho.
 - Lig 4 com gravidade, sequências horizontais, verticais e diagonais.
-- Jogo da Velha multiplayer entre dois celulares na mesma rede Wi-Fi.
-- Criação de sala por código, descoberta automática e entrada manual por IP.
+- Jogo da Velha e Damas multiplayer entre dois celulares na mesma rede Wi-Fi.
+- Configuração de regras, tabuleiro e cores de Damas sincronizada entre os aparelhos.
+- Criação de sala por QR Code, código, descoberta automática ou endereço `IP:porta`.
 - Placar mantido durante as partidas e alternância de papéis nas revanches.
 - Interface responsiva para Android e iOS.
 - Identidade visual própria e ícones para Android e iOS.
@@ -42,20 +43,21 @@ Aplicativo mobile de jogos de tabuleiro para jogar no mesmo celular ou com amigo
 O AsobiPlay reúne jogos rápidos para jogar com amigos. Cada jogador pode informar seu nome, manter um placar local e escolher entre duas formas de partida:
 
 - **Mesmo celular:** dois jogadores compartilham o aparelho.
-- **Rede Wi-Fi:** no Jogo da Velha, um celular cria a sala e funciona como anfitrião temporário, sem depender de computador ou servidor externo.
+- **Rede Wi-Fi:** no Jogo da Velha e em Damas, um celular cria a sala e funciona como anfitrião temporário, sem depender de computador ou servidor externo.
 
 Para jogar pela rede local:
 
 1. Conecte os dois celulares ao mesmo Wi-Fi.
-2. No primeiro aparelho, toque em **Sala Wi-Fi**, informe o nome e crie a sala.
-3. No segundo, informe nome e código para localizar a sala automaticamente.
-4. Se a descoberta não funcionar, digite o `IP:porta` mostrado pelo anfitrião.
+2. No primeiro aparelho, toque em **Sala Wi-Fi**, escolha o jogo, informe o nome e crie a sala.
+3. Em Damas, escolha também as regras, o tabuleiro e as cores das peças.
+4. No segundo aparelho, informe seu nome e toque em **Ler QR e entrar**.
+5. Como alternativa, use o código da sala ou o `IP:porta` mostrado pelo anfitrião.
 
 ## Tecnologias
 
 - Flutter e Dart
 - Material 3
-- WebSocket, UDP broadcast e descoberta na rede local
+- WebSocket, UDP broadcast, QR Code e descoberta na rede local
 - Testes unitários e de widgets
 - GitHub Actions
 
@@ -78,7 +80,7 @@ flutter test
 
 ## Arquitetura
 
-O código é organizado por funcionalidades. As regras de cada jogo são separadas da interface e da futura comunicação em rede, permitindo testes isolados e reutilização dos modos de partida.
+O código é organizado por funcionalidades. As regras de cada jogo são separadas da interface e da comunicação em rede, permitindo testes isolados e reutilização nos modos local e Wi-Fi.
 
 Consulte a [arquitetura](docs/ARQUITETURA.md) e o [roadmap](docs/ROADMAP.md) para acompanhar as próximas entregas.
 
